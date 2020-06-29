@@ -1,0 +1,140 @@
+Sub VBA_Stock_Challenge():
+
+    ' Loop through worksheets
+    For Each ws In Worksheets
+    
+        ' Create headers for columns I - Q
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+    
+        ' Set variables for ticker name
+        Dim TickerName As String
+        TickerName = " "
+        
+        Dim YearlyChange As Double
+        
+        Dim OpenPrice As Double
+        OpenPrice = ws.Cells(2, 3).Value
+        
+        Dim ClosePrice As Double
+        
+        Dim PercentChange As Double
+        
+        Dim Total As Double
+        Total = 0
+        
+        Dim i As Long
+        
+        ' Set variable to hold row number
+        Dim j As Integer
+        j = 2
+        
+        ' Set variable to hold last row
+        Dim LastRow As Long
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        
+        ' Set variables for summary table
+        Dim MaxPercent As Double
+        Dim Pos As Double
+        Dim MaxTicker As String
+        Dim MinPercent As Double
+        Dim Pos1 As Double
+        Dim MinTicker As String
+        Dim MaxVolume As Double
+        Dim Pos2 As Double
+        Dim MaxVolTicker As String
+        
+            ' Loop through rows
+            For i = 2 To LastRow
+            
+                ' Check to see if ticker symbols are the same
+                If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                
+                    ' Add ticker symbol to column I
+                    TickerName = ws.Cells(i, 1).Value
+                    ws.Range("I" & j).Value = TickerName
+                    
+                    ' Calculate close price and yearly change, and print yearly change to column J
+                    ClosePrice = ws.Cells(i, 6).Value
+                    YearlyChange = ClosePrice - OpenPrice
+                    ws.Range("J" & j) = YearlyChange
+                    
+                    ' Calculate percent change, and print to column K
+                    If OpenPrice <> 0 Then
+                    PercentChange = (YearlyChange / OpenPrice) * 100
+                    ws.Range("K" & j).Value = Str(PercentChange) + "%"
+                    End If
+                    
+                    
+                    ' Set positive yearly change interior color to green, and set negative yearly change interior color to red
+                    If YearlyChange > 0 Then
+                        ws.Range("J" & j).Interior.ColorIndex = 4
+                        Else
+                            ws.Range("J" & j).Interior.ColorIndex = 3
+                    End If
+                    
+                    ' Calculate total stock volume for current ticker, and print value to column L
+                    Total = Total + ws.Cells(i, 7).Value
+                    ws.Range("L" & j).Value = Total
+                    
+                    ' Move to the next row
+                    j = j + 1
+                    
+                    ' Reset values to 0
+                    YearlyChange = 0
+                    ClosePrice = 0
+                    OpenPrice = ws.Cells(i + 1, 3).Value
+                    Total = 0
+                    
+                        Else
+                    
+                            ' If ticker symbols are the same, add to the total stock volume
+                            Total = Total + ws.Cells(i, 7).Value
+                End If
+            
+            Next i
+            
+                ' Find Max Percent
+                    MaxPercent = (ws.Application.WorksheetFunction.Max(ws.Range("K2:K290"))) * 100
+                    ' Print max percent in cell Q2
+                    ws.Range("Q2").Value = Str(MaxPercent) + "%"
+                    ' Locate the position of max percent
+                    Pos = ws.Application.WorksheetFunction.Match(ws.Range("Q2"), ws.Range("K1:K290"), 0)
+                    ' Match max percent position and max ticker name
+                    MaxTicker = ws.Range("I" & Pos).Value
+                    ' Print Max Ticker in Cell P2
+                    ws.Range("P2").Value = MaxTicker
+                    
+                    ' Find Min Percent
+                    MinPercent = (ws.Application.WorksheetFunction.Min(ws.Range("K2:K290"))) * 100
+                    ' Print max percent in cell Q3
+                    ws.Range("Q3").Value = Str(MinPercent) + "%"
+                    ' Locate the position of min percent
+                    Pos1 = ws.Application.WorksheetFunction.Match(ws.Range("Q3"), ws.Range("K1:K290"), 0)
+                    ' Match min percent position and min ticker name
+                    MinTicker = ws.Range("I" & Pos1).Value
+                    ' Print Min Ticker in cell P3
+                    ws.Range("P3").Value = MinTicker
+                    
+                    ' Find Max Volume
+                    MaxVolume = (ws.Application.WorksheetFunction.Max(ws.Range("L2:L290"))) * 100
+                    ' Print max volume in Q4
+                    ws.Range("Q4").Value = MaxVolume
+                    ' Locate the position of max volume
+                    Pos2 = ws.Application.WorksheetFunction.Match(ws.Range("Q4"), ws.Range("L1:L290"), 1)
+                    ' Match max volume position and max volume ticker name
+                    MaxVolTicker = ws.Range("I" & Pos1).Value
+                    ' Print max volume ticker in cell P4
+                    ws.Range("P4").Value = MaxVolTicker
+                    
+                    
+    Next ws
+                
+End Sub
